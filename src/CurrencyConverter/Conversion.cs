@@ -11,12 +11,13 @@ namespace CurrencyConverter
 {
     public class Conversion
     {
-        static readonly HttpClient client = new HttpClient();
+        private readonly HttpClient _client;
         private readonly IConfiguration _configuration;
 
-        public Conversion(IConfiguration configuration)
+        public Conversion(IConfiguration configuration, HttpClient client)
         {
             _configuration = configuration;
+            _client = client;
         }
 
         public async Task<string[]> FetchAllAvailableCurrencies()
@@ -28,15 +29,19 @@ namespace CurrencyConverter
             return list.Distinct().ToArray();
         }
 
-        public async Task<ActionResult> ConvertCurrencyAsync(string currencyFrom, string currencyTo, double value)
+        public async Task<double> ConvertCurrencyAsync(string currencyFrom, string currencyTo, double value)
         {
+            if (double.IsNegative(value) || !double.IsNormal(value)) throw new ArgumentException($"Value of {nameof(value)} '{value}' is not valid!");
+            if (currencyFrom == null) throw new ArgumentException($"Value of {nameof(currencyFrom)} cannot be null");
+            if (currencyTo == null) throw new ArgumentException($"Value of {nameof(currencyTo)} cannot be null");
+
             var currencies = await FetchCurrencies();
             var data = currencies.Data;
             data.Add(currencies.Query.BaseCurrency, 1f); // USD 
-            if (!data.ContainsKey(currencyFrom)) throw new Exception($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
-            if (!data.ContainsKey(currencyTo)) throw new Exception($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
+            if (!data.ContainsKey(currencyFrom)) throw new ArgumentException($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
+            if (!data.ContainsKey(currencyTo)) throw new ArgumentException($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
 
-            return new ObjectResult((data[currencyTo] / data[currencyFrom]) * value);
+            return (data[currencyTo] / data[currencyFrom]) * value;
         }
 
         private async Task<CurrencyResponse> FetchCurrencies()
@@ -44,7 +49,7 @@ namespace CurrencyConverter
             try
             {
                 // Consider a caching solution to reduce amount of calls to freecurrency api
-                var request = await client.GetAsync(_configuration.GetConnectionString("freeCurrencyApi"));
+                var request = await _client.GetAsync(_configuration.GetConnectionString("freeCurrencyApi"));
                 if (request.IsSuccessStatusCode)
                 {
                     var content = await request.Content.ReadAsStringAsync();
