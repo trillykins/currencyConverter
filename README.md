@@ -1,6 +1,6 @@
 # currencyConverter
 
-API for converting currencies
+JSON REST API in .NET Core for converting currencies
 
 ## Installation
 
