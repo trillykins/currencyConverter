@@ -1,5 +1,7 @@
 # currencyConverter
 
+API for converting currencies
+
 ## Installation
 
 Build a docker container with the application:
@@ -9,6 +11,8 @@ Build a docker container with the application:
 Run the docker container:
 
 `docker run -d -p 8080:80 --name CurrencyConverter currency-converter`
+
+*If using Visual Studio for local development simply choose the Docker or IIS Express run configuration and start the application.*
 
 ## Usage
 
