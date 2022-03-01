@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CurrencyConverter.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -20,16 +21,16 @@ namespace CurrencyConverter
             _client = client;
         }
 
-        public async Task<string[]> FetchAllAvailableCurrencies()
+        public async Task<IEnumerable<string>> FetchAllAvailableCurrencies()
         {
             var currencies = await FetchCurrencies();
             List<string> list = currencies.Data.Keys.ToList();
             list.Add(currencies.Query.BaseCurrency);
             list.Sort();
-            return list.Distinct().ToArray();
+            return list.Distinct();
         }
 
-        public async Task<double> ConvertCurrencyAsync(string currencyFrom, string currencyTo, double value)
+        public async Task<CurrencyConversionResponse> ConvertCurrencyAsync(string currencyFrom, string currencyTo, double value)
         {
             if (double.IsNegative(value) || !double.IsNormal(value)) throw new ArgumentException($"Value of {nameof(value)} '{value}' is not valid!");
             if (currencyFrom == null) throw new ArgumentException($"Value of {nameof(currencyFrom)} cannot be null");
@@ -41,7 +42,13 @@ namespace CurrencyConverter
             if (!data.ContainsKey(currencyFrom)) throw new ArgumentException($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
             if (!data.ContainsKey(currencyTo)) throw new ArgumentException($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
 
-            return (data[currencyTo] / data[currencyFrom]) * value;
+            return new CurrencyConversionResponse
+            {
+                ConvertedAmount = (data[currencyTo] / data[currencyFrom]) * value,
+                CurrencyConverteredOrigin = currencyFrom,
+                CurrencyConverteredTarget = currencyTo,
+                OriginalAmount = value
+            };
         }
 
         private async Task<CurrencyResponse> FetchCurrencies()

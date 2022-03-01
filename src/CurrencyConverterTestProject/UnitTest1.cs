@@ -6,6 +6,7 @@ using Moq.Protected;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -58,14 +59,17 @@ namespace CurrencyConverterTestProject
         {
             var result = await _conversion.FetchAllAvailableCurrencies();
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.Length > 0);
+            Assert.IsTrue(result.Count() > 0);
         }
 
         [TestMethod]
         public async Task TestMethod2Async()
         {
             var result = await _conversion.ConvertCurrencyAsync("USD", "JPY", 1200);
-            Assert.AreEqual(137935, (int)result);
+            Assert.AreEqual("USD", result.CurrencyConverteredOrigin);
+            Assert.AreEqual("JPY", result.CurrencyConverteredTarget);
+            Assert.AreEqual(1200, (int)result.OriginalAmount);
+            Assert.AreEqual(137935, (int)result.ConvertedAmount);
         }
 
         [TestMethod]
