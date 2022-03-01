@@ -23,7 +23,7 @@ namespace CurrencyConverterTestProject
         private HttpClient _magicHttpClient;
 
         [TestInitialize]
-        public void init()
+        public void Init()
         {
             // Mock IConfiguration
             var appSettingsStub = new Dictionary<string, string>
@@ -43,7 +43,7 @@ namespace CurrencyConverterTestProject
             var response = new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(File.ReadAllText(@"test-data.json")),
+                Content = new StringContent(File.ReadAllText(@"test-data.json")),   // Consider generating instead
             };
             _handlerMock
                .Protected()
