@@ -4,11 +4,11 @@ JSON REST API in .NET Core for converting currencies
 
 ## Installation
 
-Build a docker container with the application:
+Build a docker container with the application from the root of the `src` directory:
 
 `docker build -t currency-converter .`
 
-Run the docker container:
+Run the docker container from the root of the `src` directory:
 
 `docker run -d -p 8080:80 --name CurrencyConverter currency-converter`
 
