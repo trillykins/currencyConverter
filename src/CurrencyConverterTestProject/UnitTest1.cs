@@ -1,4 +1,5 @@
 using CurrencyConverter;
+using CurrencyConverter.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,9 +23,18 @@ namespace CurrencyConverterTestProject
         private Mock<HttpMessageHandler> _handlerMock;
         private HttpClient _magicHttpClient;
 
+        private Currency _currency;
+
         [TestInitialize]
         public void Init()
         {
+            _currency = new Currency
+            {
+                Amount = 1200f,
+                CurrencyFrom = "USD",
+                CurrencyTo = "JPY"
+            };
+
             // Mock IConfiguration
             var appSettingsStub = new Dictionary<string, string>
             {
@@ -65,7 +75,7 @@ namespace CurrencyConverterTestProject
         [TestMethod]
         public async Task TestMethod2Async()
         {
-            var result = await _conversion.ConvertCurrencyAsync("USD", "JPY", 1200);
+            var result = await _conversion.ConvertCurrencyAsync(_currency);
             Assert.AreEqual("USD", result.CurrencyConverteredOrigin);
             Assert.AreEqual("JPY", result.CurrencyConverteredTarget);
             Assert.AreEqual(1200, (int)result.OriginalAmount);
@@ -75,75 +85,81 @@ namespace CurrencyConverterTestProject
         [TestMethod]
         public async Task TestMethod3Async()
         {
+            _currency.CurrencyFrom = "MS";
             try
             {
-                await _conversion.ConvertCurrencyAsync("MS", "DOS", 1200);
+                await _conversion.ConvertCurrencyAsync(_currency);
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
             {
-                Assert.IsTrue(e is ArgumentException);
-                Assert.AreEqual("The parameter currencyFrom, MS, is not a valid currency", e.Message);
+                Assert.IsTrue(e is KeyNotFoundException);
+                Assert.AreEqual("The parameter CurrencyFrom, MS, is not a valid currency", e.Message);
             }
         }
 
         [TestMethod]
         public async Task TestMethod4Async()
         {
+            _currency.CurrencyTo = "DOS";
             try
             {
-                await _conversion.ConvertCurrencyAsync("USD", "DOS", 1200);
+                await _conversion.ConvertCurrencyAsync(_currency); 
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
             {
-                Assert.IsTrue(e is ArgumentException);
-                Assert.AreEqual("The parameter currencyTo, DOS, is not a valid currency", e.Message);
+                Assert.IsTrue(e is KeyNotFoundException);
+                Assert.AreEqual("The parameter CurrencyTo, DOS, is not a valid currency", e.Message);
             }
         }
 
-        [TestMethod]
-        public async Task TestMethod5Async()
-        {
-            try
-            {
-                await _conversion.ConvertCurrencyAsync(null, "JPY", 1200);
-                Assert.Fail("Supposed to fail test-case");
-            }
-            catch (Exception e)
-            {
-                Assert.IsTrue(e is ArgumentException);
-                Assert.AreEqual("Value of currencyFrom cannot be null", e.Message);
-            }
-        }
-        [TestMethod]
-        public async Task TestMethod6Async()
-        {
-            try
-            {
-                await _conversion.ConvertCurrencyAsync("USD", null, 1200);
-                Assert.Fail("Supposed to fail test-case");
-            }
-            catch (Exception e)
-            {
-                Assert.IsTrue(e is ArgumentException);
-                Assert.AreEqual("Value of currencyTo cannot be null", e.Message);
-            }
-        }
+        //[TestMethod]
+        //public async Task TestMethod5Async()
+        //{
+        //    _currency.CurrencyFrom = null;
 
-        [TestMethod]
-        public async Task TestMethod7Async()
-        {
-            try
-            {
-                await _conversion.ConvertCurrencyAsync("USD", "DOS", -1200);
-                Assert.Fail("Supposed to fail test-case");
-            }
-            catch (Exception e)
-            {
-                Assert.IsTrue(e is ArgumentException);
-                Assert.AreEqual("Value of value '-1200' is not valid!", e.Message);
-            }
-        }
+        //    try
+        //    {
+        //        var result = await _conversion.ConvertCurrencyAsync(_currency);
+        //        Assert.Fail("Supposed to fail test-case");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Assert.IsTrue(e is ArgumentNullException);
+        //        Assert.AreEqual("Value of CurrencyFrom cannot be null", e.Message);
+        //    }
+        //}
+        //[TestMethod]
+        //public async Task TestMethod6Async()
+        //{
+        //    _currency.CurrencyTo = null;
+        //    try
+        //    {
+        //        await _conversion.ConvertCurrencyAsync(_currency);
+        //        Assert.Fail("Supposed to fail test-case");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Assert.IsTrue(e is ArgumentNullException);
+        //        Assert.AreEqual("Value of CurrencyTo cannot be null", e.Message);
+        //    }
+        //}
+
+        //[TestMethod]
+        //public async Task TestMethod7Async()
+        //{
+        //    _currency.Amount = -1200f;
+        //    try
+        //    {
+        //        var result = await _conversion.ConvertCurrencyAsync(_currency);
+        //        Assert.Fail("Supposed to fail test-case");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Assert.IsTrue(e is KeyNotFoundException);
+        //        Assert.AreEqual("Value of Amount '-1200' is not valid!", e.Message);
+        //    }
+        //}
     }
 }

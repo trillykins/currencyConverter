@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CurrencyConverter.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -24,10 +27,19 @@ namespace CurrencyConverter.Controllers
 
         [HttpGet]
         [Route("convert")]
-        public async Task<IActionResult> GetAsync([Required]string currencyFrom, [Required] string currencyTo, [Required] double value)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IActionResult))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAsync([FromQuery] Currency convertion)
         {
-            // https://localhost:44379/currency/convert?currencyFrom=DKK&currencyTo=JPY&value=1200
-            return new ObjectResult(await _conversion.ConvertCurrencyAsync(currencyFrom, currencyTo, value));
+            try
+            {
+                // https://localhost:44379/currency/convert?currencyFrom=DKK&currencyTo=JPY&value=1200
+                return Ok(await _conversion.ConvertCurrencyAsync(convertion));
+            }
+            catch (KeyNotFoundException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

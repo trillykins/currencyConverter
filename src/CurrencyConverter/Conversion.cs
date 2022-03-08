@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -30,24 +31,20 @@ namespace CurrencyConverter
             return list.Distinct();
         }
 
-        public async Task<CurrencyConversionResponse> ConvertCurrencyAsync(string currencyFrom, string currencyTo, double value)
+        public async Task<CurrencyConversionResponse> ConvertCurrencyAsync(Currency convertion)
         {
-            if (double.IsNegative(value) || !double.IsNormal(value)) throw new ArgumentException($"Value of {nameof(value)} '{value}' is not valid!");
-            if (currencyFrom == null) throw new ArgumentException($"Value of {nameof(currencyFrom)} cannot be null");
-            if (currencyTo == null) throw new ArgumentException($"Value of {nameof(currencyTo)} cannot be null");
-
             var currencies = await FetchCurrencies();
             var data = currencies.Data;
             if (!data.ContainsKey(currencies.Query.BaseCurrency)) data.Add(currencies.Query.BaseCurrency, 1f); 
-            if (!data.ContainsKey(currencyFrom)) throw new ArgumentException($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
-            if (!data.ContainsKey(currencyTo)) throw new ArgumentException($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
+            if (!data.ContainsKey(convertion.CurrencyFrom)) throw new KeyNotFoundException($"The parameter {nameof(convertion.CurrencyFrom)}, {convertion.CurrencyFrom}, is not a valid currency");
+            if (!data.ContainsKey(convertion.CurrencyTo)) throw new KeyNotFoundException($"The parameter {nameof(convertion.CurrencyTo)}, {convertion.CurrencyTo}, is not a valid currency");
 
             return new CurrencyConversionResponse
             {
-                ConvertedAmount = (data[currencyTo] / data[currencyFrom]) * value,
-                CurrencyConverteredOrigin = currencyFrom,
-                CurrencyConverteredTarget = currencyTo,
-                OriginalAmount = value
+                ConvertedAmount = (data[convertion.CurrencyTo] / data[convertion.CurrencyFrom]) * convertion.Amount,
+                CurrencyConverteredOrigin = convertion.CurrencyFrom,
+                CurrencyConverteredTarget = convertion.CurrencyTo,
+                OriginalAmount = convertion.Amount
             };
         }
 
