@@ -19,7 +19,7 @@ jobs:
       with:
         files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
       env:
-        ConnectionStrings.freeCurrencyApi: ${{ FREE_CURRENCY_API_TOKEN }}
+        ConnectionStrings.freeCurrencyApi: ${{ secrets.FREE_CURRENCY_API_TOKEN }}
     - name: Build the Docker image
       run: |
         cd src
