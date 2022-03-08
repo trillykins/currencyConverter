@@ -38,9 +38,9 @@ namespace CurrencyConverter
 
             var currencies = await FetchCurrencies();
             var data = currencies.Data;
-            if (!data.ContainsKey(currencies.Query.BaseCurrency)) data.Add(currencies.Query.BaseCurrency, 1f); 
-            if (!data.ContainsKey(currencyFrom)) throw new ArgumentException($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
-            if (!data.ContainsKey(currencyTo)) throw new ArgumentException($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
+            if (!data.ContainsKey(currencies.Query.BaseCurrency)) data.Add(currencies.Query.BaseCurrency, 1f);
+            if (!data.ContainsKey(currencyFrom)) throw new KeyNotFoundException($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
+            if (!data.ContainsKey(currencyTo)) throw new KeyNotFoundException($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
 
             return new CurrencyConversionResponse
             {
@@ -53,22 +53,15 @@ namespace CurrencyConverter
 
         private async Task<CurrencyResponse> FetchCurrencies()
         {
-            try
+            // Consider a caching solution to reduce amount of calls to freecurrency api
+            var request = await _client.GetAsync(_configuration.GetConnectionString("freeCurrencyApi"));
+            if (request.IsSuccessStatusCode)
             {
-                // Consider a caching solution to reduce amount of calls to freecurrency api
-                var request = await _client.GetAsync(_configuration.GetConnectionString("freeCurrencyApi"));
-                if (request.IsSuccessStatusCode)
-                {
-                    var content = await request.Content.ReadAsStringAsync();
-                    var currencies = JsonConvert.DeserializeObject<CurrencyResponse>(content);
-                    return currencies;
-                }
-                throw new Exception($"Failed to fetch currencies: {request.StatusCode}");
+                var content = await request.Content.ReadAsStringAsync();
+                var currencies = JsonConvert.DeserializeObject<CurrencyResponse>(content);
+                return currencies;
             }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            throw new Exception($"Failed to fetch currencies: {request.StatusCode}");
         }
     }
 }

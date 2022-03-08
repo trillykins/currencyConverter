@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CurrencyConverter.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -19,15 +21,37 @@ namespace CurrencyConverter.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            return new ObjectResult(await _conversion.FetchAllAvailableCurrencies());
+            try
+            {
+                return Ok(await _conversion.FetchAllAvailableCurrencies());
+            }
+            catch (Exception)
+            {
+                return NotFound("Service is temporarily unavailable");
+            }
         }
 
         [HttpGet]
         [Route("convert")]
-        public async Task<IActionResult> GetAsync([Required]string currencyFrom, [Required] string currencyTo, [Required] double value)
+        public async Task<IActionResult> GetAsync([FromQuery] Currency currency)
         {
-            // https://localhost:44379/currency/convert?currencyFrom=DKK&currencyTo=JPY&value=1200
-            return new ObjectResult(await _conversion.ConvertCurrencyAsync(currencyFrom, currencyTo, value));
+            try
+            {
+                // https://localhost:44379/currency/convert?currencyFrom=DKK&currencyTo=JPY&amount=1200
+                return Ok(await _conversion.ConvertCurrencyAsync(currency.CurrencyFrom, currency.CurrencyTo, currency.Amount));
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception)
+            {
+                return NotFound("Service is temporarily unavailable");
+            }
         }
     }
 }

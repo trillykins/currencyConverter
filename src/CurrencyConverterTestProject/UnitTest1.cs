@@ -82,7 +82,7 @@ namespace CurrencyConverterTestProject
             }
             catch (Exception e)
             {
-                Assert.IsTrue(e is ArgumentException);
+                Assert.IsTrue(e is KeyNotFoundException);
                 Assert.AreEqual("The parameter currencyFrom, MS, is not a valid currency", e.Message);
             }
         }
@@ -97,7 +97,7 @@ namespace CurrencyConverterTestProject
             }
             catch (Exception e)
             {
-                Assert.IsTrue(e is ArgumentException);
+                Assert.IsTrue(e is KeyNotFoundException);
                 Assert.AreEqual("The parameter currencyTo, DOS, is not a valid currency", e.Message);
             }
         }

@@ -24,4 +24,4 @@ Get a list of all available currencies:
 
 Convert an amount of currency from one currency to another (e.g. $1200 USD in JPY)
 
-* http://localhost:8080/currency/convert?currencyFrom=USD&currencyTo=JPY&value=1200
+* http://localhost:8080/currency/convert?currencyFrom=USD&currencyTo=JPY&amount=1200
