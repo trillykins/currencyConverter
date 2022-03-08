@@ -33,12 +33,10 @@ namespace CurrencyConverter
         public async Task<CurrencyConversionResponse> ConvertCurrencyAsync(string currencyFrom, string currencyTo, double value)
         {
             if (double.IsNegative(value) || !double.IsNormal(value)) throw new ArgumentException($"Value of {nameof(value)} '{value}' is not valid!");
-            if (currencyFrom == null) throw new ArgumentException($"Value of {nameof(currencyFrom)} cannot be null");
-            if (currencyTo == null) throw new ArgumentException($"Value of {nameof(currencyTo)} cannot be null");
 
             var currencies = await FetchCurrencies();
             var data = currencies.Data;
-            data.Add(currencies.Query.BaseCurrency, 1f); // USD 
+            if (!data.ContainsKey(currencies.Query.BaseCurrency)) data.Add(currencies.Query.BaseCurrency, 1f); // USD, base currency is always 1
             if (!data.ContainsKey(currencyFrom)) throw new ArgumentException($"The parameter {nameof(currencyFrom)}, {currencyFrom}, is not a valid currency");
             if (!data.ContainsKey(currencyTo)) throw new ArgumentException($"The parameter {nameof(currencyTo)}, {currencyTo}, is not a valid currency");
 
