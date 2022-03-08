@@ -21,7 +21,7 @@ jobs:
       with:
         files: './src/CurrencyConverter/appsettings.json'
       env:
-        ConnectionStrings.freeCurrencyApi: ${{ secrets.FREE_CURRENCY_API_TOKEN }}
+        ConnectionStrings.doesNotExist: ${{ secrets.FREE_CURRENCY_API_TOKEN }}
     - name: Build the Docker image
       run: |
         cd src
