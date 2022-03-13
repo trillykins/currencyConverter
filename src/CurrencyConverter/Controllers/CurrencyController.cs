@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CurrencyConverter.Controllers
@@ -19,11 +20,11 @@ namespace CurrencyConverter.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
         {
             try
             {
-                return Ok(await _conversion.FetchAllAvailableCurrencies());
+                return Ok(await _conversion.FetchAllAvailableCurrencies(cancellationToken));
             }
             catch (Exception)
             {
@@ -33,12 +34,12 @@ namespace CurrencyConverter.Controllers
 
         [HttpGet]
         [Route("convert")]
-        public async Task<IActionResult> GetAsync([FromQuery] Currency currency)
+        public async Task<IActionResult> GetAsync([FromQuery] Currency currency, CancellationToken cancellationToken)
         {
             try
             {
                 // https://localhost:44379/currency/convert?currencyFrom=DKK&currencyTo=JPY&amount=1200
-                return Ok(await _conversion.ConvertCurrencyAsync(currency.CurrencyFrom, currency.CurrencyTo, currency.Amount));
+                return Ok(await _conversion.ConvertCurrencyAsync(currency.CurrencyFrom, currency.CurrencyTo, currency.Amount, cancellationToken));
             }
             catch (ArgumentException e)
             {

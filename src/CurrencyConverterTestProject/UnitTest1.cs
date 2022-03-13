@@ -57,7 +57,7 @@ namespace CurrencyConverterTestProject
         [TestMethod]
         public async Task TestMethod1Async()
         {
-            var result = await _conversion.FetchAllAvailableCurrencies();
+            var result = await _conversion.FetchAllAvailableCurrencies(CancellationToken.None);
             Assert.IsNotNull(result);
             Assert.IsTrue(result.Count() > 0);
         }
@@ -65,7 +65,7 @@ namespace CurrencyConverterTestProject
         [TestMethod]
         public async Task TestMethod2Async()
         {
-            var result = await _conversion.ConvertCurrencyAsync("USD", "JPY", 1200);
+            var result = await _conversion.ConvertCurrencyAsync("USD", "JPY", 1200, CancellationToken.None);
             Assert.AreEqual("USD", result.CurrencyConverteredOrigin);
             Assert.AreEqual("JPY", result.CurrencyConverteredTarget);
             Assert.AreEqual(1200, (int)result.OriginalAmount);
@@ -77,7 +77,7 @@ namespace CurrencyConverterTestProject
         {
             try
             {
-                await _conversion.ConvertCurrencyAsync("MS", "DOS", 1200);
+                await _conversion.ConvertCurrencyAsync("MS", "DOS", 1200, CancellationToken.None);
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
@@ -92,7 +92,7 @@ namespace CurrencyConverterTestProject
         {
             try
             {
-                await _conversion.ConvertCurrencyAsync("USD", "DOS", 1200);
+                await _conversion.ConvertCurrencyAsync("USD", "DOS", 1200, CancellationToken.None);
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
@@ -107,7 +107,7 @@ namespace CurrencyConverterTestProject
         {
             try
             {
-                await _conversion.ConvertCurrencyAsync(null, "JPY", 1200);
+                await _conversion.ConvertCurrencyAsync(null, "JPY", 1200, CancellationToken.None);
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
@@ -121,7 +121,7 @@ namespace CurrencyConverterTestProject
         {
             try
             {
-                await _conversion.ConvertCurrencyAsync("USD", null, 1200);
+                await _conversion.ConvertCurrencyAsync("USD", null, 1200, CancellationToken.None);
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
@@ -136,7 +136,7 @@ namespace CurrencyConverterTestProject
         {
             try
             {
-                await _conversion.ConvertCurrencyAsync("USD", "DOS", -1200);
+                await _conversion.ConvertCurrencyAsync("USD", "DOS", -1200, CancellationToken.None);
                 Assert.Fail("Supposed to fail test-case");
             }
             catch (Exception e)
